@@ -43,6 +43,7 @@ jobs:
         run: |
           docker compose -f compose.prod.yaml config --quiet
           docker compose -f compose.prod.yaml build
+          docker compose -f compose.prod.yaml run --rm --no-deps php sh -c 'php bin/console cache:clear --env=prod --no-debug && php bin/console list doctrine:migrations --env=prod'
       - name: Show logs on failure
         if: failure()
         run: docker compose logs --no-color

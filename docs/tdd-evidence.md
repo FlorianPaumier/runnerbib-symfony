@@ -44,3 +44,17 @@ Further container verification is recorded after the runtime checks complete.
 - `make quality` passed: PHPUnit 3 tests/9 assertions, 100% line coverage (10/10 overall, 2/2 core), Symfony lint, zero Deptrac violations, zero PHPStan errors, formatting and Composer audit (no advisories).
 - Infection ran against Domain/Application with uncovered code included. Zero mutations exist in the current delegating bootstrap; zero-candidate threshold bypass is explicit and does not constitute an achieved mutation score. Future mutatable business logic is subject to 90% MSI / 95% covered MSI thresholds.
 - Composer strict validation and CI workflow YAML lint passed; development HTTP liveness/readiness passed. CI invokes the same quality command and publishes both reports.
+
+## Complete consolidated migrations — 2026-10-08
+
+- User approved Doctrine migration commands and isolated real PostgreSQL as the additional seam.
+- Red: migration apply test expected 40 tables and observed 0 before DDL existed.
+- Green: transactional migration installed 40 tables, rollback removed them, replay installed all 40 again.
+- Red: committed checkout repricing, financial intent rewriting and restoration of redacted private snapshots were accepted before protection triggers. Green after targeted immutability/redaction triggers.
+- Red: publication with a rejected proof and reactivation of released checkout protection were accepted. Green after publication and terminal-protection guards.
+- Regression scenarios cover race constraints, private redaction, context FKs, leading-zero bibs, nonparticipating race identity, distinct definitive-failure retries, provider scopes and two-connection checkout protection. They do not certify unimplemented application workflows.
+- Runtime-grant smoke test used a separate temporary database and NOLOGIN role. SELECT worked; schema CREATE, immutable-intent UPDATE and migration metadata DELETE returned SQLSTATE 42501. Both temporary database and role were removed.
+- Existing application database reports the new migration as not migrated. HTTP health/readiness still return OK/ready. No application database or existing volume was reset.
+- Final PHPUnit run: 25 tests, 88 assertions passed. Runtime coverage: 100% (10/10 lines overall, 2/2 Domain/Application); migration SQL is verified separately, not included in that percentage. Infection currently has zero runtime business mutation candidates; no mutation score is claimed.
+- Development and production Docker builds, Compose validation, Composer strict validation, YAML/container lint, Deptrac and PHPStan level 10 passed during this slice.
+- Production CLI smoke initially exposed a stale compiled container in the retained runtime volume. Explicit production cache clear restored the Doctrine migration namespace. Deployment instructions and CI production smoke now include this step; no production migration was executed.

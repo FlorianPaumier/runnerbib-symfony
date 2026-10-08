@@ -75,3 +75,9 @@ docker compose --env-file /path/to/production.env -f compose.prod.yaml up -d --w
 The production web port defaults to loopback port 8081. Put a TLS reverse proxy in front of it and configure trusted proxies before deployment. Back up PostgreSQL with your deployment tooling. Service health checks cover FPM liveness and HTTP liveness; deployment readiness should additionally request `/ready`. Supply secrets through your deployment environment. Rebuild both PHP and web images when assets change. Pin image digests in a deployment pipeline for reproducible releases.
 
 Official framework setup: https://symfony.com/doc/8.1/setup.html
+
+## Marketplace migrations
+
+The complete consolidated 40-table schema is available through Doctrine Migrations. Run `make migration-status` or `make migration-dry-run` to inspect it; `make migrate` applies it to the configured database. Migration tests create and remove only isolated temporary databases. No application database is changed by running the test suite.
+
+See [migration implementation](docs/architecture/migration-implementation.md) for constraints, explicit production migration execution, runtime role grants and rollback behavior. Architecture module directories are established; marketplace use cases are not yet implemented.

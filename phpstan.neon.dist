@@ -8,6 +8,7 @@ parameters:
         - src
         - tests
         - tools
+        - migrations
     tmpDir: var/phpstan
     symfony:
         containerXmlPath: var/cache/dev/App_KernelDevDebugContainer.xml

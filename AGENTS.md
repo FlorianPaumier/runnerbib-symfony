@@ -24,3 +24,6 @@ Target 100% coverage. CI requires at least 98% line coverage across all hand-wri
 
 ## Quality gates
 Use PHPUnit. `make quality` runs coverage, Symfony/Deptrac lint, PHPStan level 10, PHP CS Fixer dry-run, Infection and Composer audit. Analyze src/, tests/ and tools/ without a baseline or ignored errors. Fix actual types/guards instead of using unverified PHPDoc casts. Use `make cs-fix` for the Symfony formatting rules. Infection initially targets Domain/Application, with minimum 90% MSI and 95% covered MSI; inspect every survivor. With zero mutation candidates the score is not applicable, not 100%. Do not exclude business code or disable mutators to obtain a passing score. New business rules must have meaningful mutation candidates.
+
+## Migration test boundary
+The user approved Doctrine migration commands and real isolated PostgreSQL databases for apply, rollback, replay and constraint tests. MigrationsTest creates uniquely named migration_test_* databases and drops only those test databases. Development/production data must not be reset for verification. Migration PHP and SQL are deployment infrastructure outside src/ coverage; analyze/style-check migration PHP and verify SQL through the migration integration tests.

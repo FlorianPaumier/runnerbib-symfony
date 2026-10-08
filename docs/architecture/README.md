@@ -12,3 +12,4 @@ The authoritative business sources live in [workspace specifications](../../../s
 5. [Search, privacy and reporting](search-privacy-reporting-plan.md): search indexes, private-data lifecycle and aggregate/financial reporting requirements for the simplified candidate.
 6. [Finalized race schema](race-schema.md): race columns, invariants, discovery indexes, legacy mapping and implementation boundaries; supersedes earlier race-table sketches.
 7. [Module boundaries](module-boundaries.md): concrete layer/module layout and migration ownership.
+8. [Migration implementation](migration-implementation.md): implemented 40-table DDL, constraints, role separation, verification and remaining application responsibilities.

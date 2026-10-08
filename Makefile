@@ -39,3 +39,11 @@ mutation:
 audit:
 	$(DC) exec php composer audit
 quality: coverage lint analyse cs-check mutation audit
+
+.PHONY: migrate migration-status migration-dry-run
+migrate:
+	$(DC) exec php bin/console doctrine:migrations:migrate --no-interaction
+migration-status:
+	$(DC) exec php bin/console doctrine:migrations:status
+migration-dry-run:
+	$(DC) exec php bin/console doctrine:migrations:migrate --dry-run --no-interaction
