@@ -1,0 +1,16 @@
+.git
+.idea
+.env.local
+.env.*.local
+.env.local.php
+.env.docker
+vendor/
+var/
+tests/
+.phpunit.cache/
+
+.deptrac.cache
+
+coverage/
+
+mutation/

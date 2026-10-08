@@ -1,0 +1,14 @@
+{
+    "source": {"directories": ["src/Domain", "src/Application"]},
+    "timeout": 10,
+    "threads": 2,
+    "testFramework": "phpunit",
+    "mutators": {"@default": true},
+    "logs": {
+        "text": "var/infection/infection.log",
+        "summary": "var/infection/summary.log",
+        "html": "var/infection/report.html"
+    },
+    "minMsi": 90,
+    "minCoveredMsi": 95
+}

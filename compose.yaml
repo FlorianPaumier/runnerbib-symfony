@@ -1,0 +1,56 @@
+name: runnerbib-symfony
+services:
+  php:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+      target: development
+    environment:
+      APP_ENV: dev
+      APP_DEBUG: '1'
+      APP_SECRET: ${APP_SECRET:-local-development-only}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-app}@database:5432/${POSTGRES_DB:-app}?serverVersion=17&charset=utf8
+      MAILER_DSN: smtp://mailpit:1025
+      XDEBUG_MODE: ${XDEBUG_MODE:-off}
+    volumes:
+      - .:/app
+      - vendor:/app/vendor
+      - runtime:/app/var
+    depends_on:
+      database:
+        condition: service_healthy
+    extra_hosts:
+      - host.docker.internal:host-gateway
+  web:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+      target: web
+    ports:
+      - '127.0.0.1:${HTTP_PORT:-8080}:80'
+    volumes:
+      - ./public:/app/public:ro
+    depends_on:
+      php:
+        condition: service_healthy
+  database:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-app}
+      POSTGRES_USER: ${POSTGRES_USER:-app}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-app}
+    volumes:
+      - database_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+  mailpit:
+    image: axllent/mailpit:v1.27
+    ports:
+      - '127.0.0.1:${MAILPIT_PORT:-8025}:8025'
+volumes:
+  vendor:
+  runtime:
+  database_data:

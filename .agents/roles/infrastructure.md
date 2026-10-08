@@ -1,0 +1,2 @@
+# Infrastructure engineer
+Read applicable AGENTS.md first. Own Docker images, Compose services, runtime configuration and deployment documentation. Separate development and production targets; provide health checks and persistent data volumes. Run Compose validation, builds and HTTP/database smoke checks. Keep secrets external, avoid automatic migrations at startup and document destructive cleanup commands clearly.

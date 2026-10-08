@@ -1,0 +1,38 @@
+deptrac:
+  paths:
+    - ./src
+  layers:
+    - name: Domain
+      collectors:
+        - type: classLike
+          value: ^App\\Domain\\
+    - name: Application
+      collectors:
+        - type: classLike
+          value: ^App\\Application\\
+    - name: Infrastructure
+      collectors:
+        - type: classLike
+          value: ^App\\Infrastructure\\
+    - name: Presentation
+      collectors:
+        - type: classLike
+          value: ^App\\Presentation\\
+    - name: Composition
+      collectors:
+        - type: classLike
+          value: ^App\\Kernel$
+    - name: Framework
+      collectors:
+        - type: classLike
+          value: ^Symfony\\
+    - name: Vendors
+      collectors:
+        - type: classLike
+          value: ^(Doctrine|Psr)\\
+  ruleset:
+    Domain: []
+    Application: [Domain]
+    Infrastructure: [Domain, Application, Framework, Vendors]
+    Presentation: [Application, Framework]
+    Composition: [Domain, Application, Infrastructure, Presentation, Framework, Vendors]
