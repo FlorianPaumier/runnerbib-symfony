@@ -8,16 +8,60 @@ services:
       target: production
     restart: unless-stopped
     environment:
+      REDIS_URL: ${REDIS_URL:?Set Redis DSN}
+      STRIPE_PROVIDER_SCOPE: ${STRIPE_PROVIDER_SCOPE:-unconfigured}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+      STRIPE_LIVE_MODE: ${STRIPE_LIVE_MODE:-0}
+      STRIPE_DASHBOARD: ${STRIPE_DASHBOARD:-}
+      STRIPE_FEES_COLLECTOR: ${STRIPE_FEES_COLLECTOR:-}
+      STRIPE_LOSSES_COLLECTOR: ${STRIPE_LOSSES_COLLECTOR:-}
+      STRIPE_SELLER_RETURN_URL: ${STRIPE_SELLER_RETURN_URL:-}
+      STRIPE_SELLER_REFRESH_URL: ${STRIPE_SELLER_REFRESH_URL:-}
+      OPTIONAL_NOTIFICATION_EMAIL_POLICY_VERSION: ${OPTIONAL_NOTIFICATION_EMAIL_POLICY_VERSION:-}
+      OPTIONAL_NOTIFICATION_IN_APP_POLICY_VERSION: ${OPTIONAL_NOTIFICATION_IN_APP_POLICY_VERSION:-}
+      RACE_NOTIFICATION_EMAIL_POLICY_VERSION: ${RACE_NOTIFICATION_EMAIL_POLICY_VERSION:-}
+      RACE_NOTIFICATION_IN_APP_POLICY_VERSION: ${RACE_NOTIFICATION_IN_APP_POLICY_VERSION:-}
+      NEWSLETTER_POLICY_VERSION: ${NEWSLETTER_POLICY_VERSION:-}
+      PRIVACY_PROGRESS_LIFETIME_SECONDS: ${PRIVACY_PROGRESS_LIFETIME_SECONDS:-}
+      NEWSLETTER_SIGNING_SECRET: ${NEWSLETTER_SIGNING_SECRET:?Set a dedicated newsletter signing secret}
+      NEWSLETTER_PREVIOUS_SIGNING_SECRETS_JSON: ${NEWSLETTER_PREVIOUS_SIGNING_SECRETS_JSON:-[]}
+      PROOF_STORAGE_DIRECTORY: ${PROOF_STORAGE_DIRECTORY:-/app/var/private/proofs}
+      PROOF_ALLOWED_MIME_TYPES: ${PROOF_ALLOWED_MIME_TYPES:-[]}
+      PROOF_MAXIMUM_BYTES: ${PROOF_MAXIMUM_BYTES:-0}
+      IMPORT_HEADERS_JSON: ${IMPORT_HEADERS_JSON:-{}}
+      IMPORT_MAXIMUM_BYTES: ${IMPORT_MAXIMUM_BYTES:-0}
+      IMPORT_MAXIMUM_ROWS: ${IMPORT_MAXIMUM_ROWS:-0}
+      IMPORT_MUTABLE_FIELDS_JSON: ${IMPORT_MUTABLE_FIELDS_JSON:-[]}
       APP_ENV: prod
       APP_DEBUG: '0'
       APP_SECRET: ${APP_SECRET:?Set a strong APP_SECRET}
-      DATABASE_URL: postgresql://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}@database:5432/${POSTGRES_DB:-app}?serverVersion=17&charset=utf8
+      DATABASE_URL: ${RUNTIME_DATABASE_URL:?Set RUNTIME_DATABASE_URL for a restricted non-owner role}
       MAILER_DSN: ${MAILER_DSN:?Set production MAILER_DSN}
+      APP_BASE_URL: ${APP_BASE_URL:?Set the trusted production origin}
+      MAILER_FROM: ${MAILER_FROM:?Set the verified production sender}
     volumes:
       - runtime:/app/var
     depends_on:
       database:
         condition: service_healthy
+  worker:
+    extends:
+      service: php
+    command: ['php', 'bin/console', 'messenger:consume', 'async', '--time-limit=3600', '--memory-limit=128M', '--failure-limit=10', '--no-interaction']
+    healthcheck:
+      disable: true
+    stop_grace_period: 30s
+    mem_limit: 256m
+  scheduler:
+    extends:
+      service: php
+    command: ['/app/docker/php/scheduler.sh']
+    stop_signal: SIGTERM
+    healthcheck:
+      disable: true
+    stop_grace_period: 30s
+    mem_limit: 256m
   web:
     build:
       context: .
@@ -40,6 +84,17 @@ services:
       - database_data:/var/lib/postgresql/data
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+  redis:
+    image: redis:7.4-alpine
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?Set Redis password}
+      REDISCLI_AUTH: ${REDIS_PASSWORD:?Set Redis password}
+    command: ['sh', '-c', 'exec redis-server --save "" --appendonly no --requirepass "$$REDIS_PASSWORD"']
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 5s
       timeout: 3s
       retries: 10

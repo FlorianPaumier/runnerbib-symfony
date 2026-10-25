@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+{% block title %}Newsletter · RelaisDossard{% endblock %}
+{% block body %}
+<h1 class="text-3xl font-extrabold">La newsletter RelaisDossard</h1>
+<p class="my-5">Recevez nos actualités. Cette inscription ne crée pas de compte ni d’alerte pour une course. Vous pouvez vous désinscrire avec le lien de chaque courriel, sans donner de raison.</p>
+{% if message %}<p class="my-5 rounded-xl ui-surface bg-white p-5" role="status">{{ message }}</p>{% endif %}
+<form action="{{ path('newsletter') }}" method="post" class="max-w-xl rounded-xl ui-surface bg-white p-6">
+<input type="hidden" name="_token" value="{{ csrf_token('newsletter') }}">
+<label for="newsletter-email" class="block font-semibold">Votre adresse courriel</label>
+<input id="newsletter-email" name="email" type="email" autocomplete="email" required class="my-3 block w-full rounded-lg border p-3">
+<button type="submit" class="rounded-lg bg-forest px-5 py-3 font-semibold text-white">M’inscrire à la newsletter</button>
+</form>
+{% endblock %}

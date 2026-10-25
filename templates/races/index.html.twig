@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+{% block title %}Les courses · RelaisDossard{% endblock %}
+{% block body %}
+<header class="page-intro"><h1>Trouvez votre prochaine course</h1><p>Un nouveau parcours. Une nouvelle occasion de prendre le départ.</p></header>
+<div class="discovery-layout">
+<form data-controller="search-progress" data-action="submit->search-progress#start turbo:before-cache@document->search-progress#reset turbo:load@document->search-progress#reset" method="get" action="{{ path('races') }}" class="course-filters">
+    <fieldset><legend>Affiner la recherche</legend>
+    <div><label for="nom">Nom de la course</label><input id="nom" name="nom" value="{{ name }}" maxlength="255" placeholder="Une course, un nouveau départ…"></div>
+    <div><label for="ville">Ville</label><input id="ville" name="ville" value="{{ filters.ville|default('') }}" placeholder="Paris, Lyon, Annecy…"></div>
+    <details class="advanced-filters" {% if filters|filter((value, key) => key != 'ville' and value != '')|length %}open{% endif %}><summary>Plus de filtres <span aria-hidden="true">＋</span></summary><div class="filter-fields">
+    {% for field in [['pays', 'Code pays', 'text'], ['sport', 'Sport', 'text'], ['debut', 'À partir du', 'date'], ['fin', "Jusqu’au", 'date'], ['distance_min', 'Distance minimale (m)', 'number'], ['distance_max', 'Distance maximale (m)', 'number']] %}
+    <div><label for="{{ field[0] }}">{{ field[1] }}</label><input id="{{ field[0] }}" name="{{ field[0] }}" type="{{ field[2] }}" value="{{ filters[field[0]]|default('') }}"></div>
+    {% endfor %}</div></details>
+    <button type="submit">Rechercher <span aria-hidden="true">↗</span></button><a class="filter-reset" href="{{ path('races') }}">Réinitialiser les filtres</a>
+    <span data-search-progress-target="status" hidden aria-live="polite">Recherche en cours…</span>
+    </fieldset>
+</form>
+<section class="course-results" aria-labelledby="course-results-heading"><div class="results-heading"><h2 id="course-results-heading">Les prochains départs</h2><span role="status" aria-live="polite">{% if page.races is empty %}Aucune course ne correspond à votre recherche.{% else %}{{ page.races|length }} course(s) sur cette page{% endif %}</span></div>
+{% for race in page.races %}<article class="course-row"><div class="course-distance"><strong>{{ (race.distanceMetres / 1000)|number_format(race.distanceMetres % 1000 == 0 ? 0 : 1, ',', ' ') }}</strong><span>km</span></div><div class="course-copy"><h3><a href="{{ path('race_detail', {id: race.id}) }}">{{ race.name }}<span class="course-arrow" aria-hidden="true">↗</span></a></h3><p>{{ race.city }} · {{ race.countryCode }} · <time datetime="{{ race.startsAt|date('c') }}">{{ race.startsAt|date('d/m/Y H:i', race.timezone) }}</time>{% if race.organizationName %} · {{ race.organizationName }}{% endif %}</p></div></article>{% else %}<div class="empty-state"><span aria-hidden="true">↗</span><p>Votre prochain départ se prépare.</p><p>Essayez une autre ville ou élargissez les distances et les dates.</p></div>{% endfor %}
+{% if nextUrl %}<a href="{{ nextUrl }}" class="ui-button next-page" rel="next">Courses suivantes <span aria-hidden="true">↗</span></a>{% endif %}
+</section></div>
+{% endblock %}

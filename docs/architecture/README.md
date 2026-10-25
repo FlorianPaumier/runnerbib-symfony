@@ -13,3 +13,5 @@ The authoritative business sources live in [workspace specifications](../../../s
 6. [Finalized race schema](race-schema.md): race columns, invariants, discovery indexes, legacy mapping and implementation boundaries; supersedes earlier race-table sketches.
 7. [Module boundaries](module-boundaries.md): concrete layer/module layout and migration ownership.
 8. [Migration implementation](migration-implementation.md): implemented 40-table DDL, constraints, role separation, verification and remaining application responsibilities.
+
+The [project completion backlog](../tasks/README.md) translates these plans into implementation and release tasks.

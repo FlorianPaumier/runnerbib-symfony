@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+{% block title %}Panier · RelaisDossard{% endblock %}
+{% block body %}
+<h1 class="text-3xl font-bold">Votre panier</h1>
+<p class="my-4">Le panier ne réserve aucun dossard et ne garantit pas le prix. Chaque offre est vérifiée à nouveau avant le paiement.</p>
+{% for item in cart.items %}
+<article class="my-6 rounded-xl border border-forest/20 ui-surface bg-white p-6">
+<a href="{{ path('listing_offer', {id: item.listingId}) }}" class="underline">Voir le dossard</a>
+<dl class="my-4 grid gap-3 sm:grid-cols-3"><div><dt>Prix du dossard</dt><dd>{{ item.priceCents|euros }}</dd></div><div><dt>Frais acheteur</dt><dd>{{ item.buyerFeeCents|euros }}</dd></div><div><dt>Total</dt><dd>{{ item.buyerTotalCents|euros }}</dd></div></dl>
+{% if not item.canPurchase %}<p role="status">Cette offre est actuellement indisponible. Elle reste dans votre panier jusqu’à son retrait.</p>{% endif %}
+<form method="post" action="{{ path('cart_remove', {id: item.listingId}) }}"><input type="hidden" name="_token" value="{{ csrf_token('cart_remove_' ~ item.listingId) }}"><button type="submit" class="underline">Retirer du panier</button></form>
+</article>
+{% else %}<p role="status">Votre panier est vide.</p>{% endfor %}
+{% if cart.items %}<p class="text-xl font-bold">Total du panier : {{ cart.buyerTotalCents|euros }}</p>{% endif %}
+{% set payable = cart.payable %}
+{% if payable %}
+<form method="post" action="{{ path('checkout_start') }}" class="my-6">
+<input type="hidden" name="_token" value="{{ csrf_token('checkout_start') }}">
+{% for item in cart.items %}
+<fieldset class="my-4">
+<legend>Informations demandées pour cette course</legend>
+{% for field in item.registrationFields %}
+<label class="block my-2">{{ field.name }}{% if field.required %} <span aria-hidden="true">*</span>{% endif %}
+{% if field.options %}
+<select name="registration[{{ item.listingId }}][{{ field.name }}]">{% for option in field.options %}<option value="{{ option }}">{{ option }}</option>{% endfor %}</select>
+{% elseif field.type == 'boolean' %}
+<input type="checkbox" name="registration[{{ item.listingId }}][{{ field.name }}]" value="1">
+{% else %}
+<input type="text" name="registration[{{ item.listingId }}][{{ field.name }}]">
+{% endif %}
+</label>
+{% endfor %}
+{% if item.participation == 'nonparticipating' %}
+<label class="block my-2"><input type="checkbox" name="acknowledgment[{{ item.raceId }}]" value="1"> Je comprends et je suivrai la procédure de transfert de cette course.</label>
+{% endif %}
+</fieldset>
+{% endfor %}
+<button type="submit">Payer {{ cart.buyerTotalCents|euros }}</button>
+</form>
+{% elseif cart.items %}
+<p role="status">Le paiement est bloqué tant qu’une offre du panier est indisponible. Retirez-la pour continuer.</p>
+{% endif %}
+<a href="{{ path('races') }}" class="mt-6 inline-block underline">Trouver une course</a>
+{% endblock %}

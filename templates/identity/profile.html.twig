@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+{% block title %}Mon compte · RelaisDossard{% endblock %}
+{% block body %}
+<section class="mx-auto max-w-lg">
+<h1 class="text-3xl font-bold">Mon compte</h1>
+<p class="mt-4" data-private-email>{{ profile.email }}</p>
+<p class="mt-4"><a class="underline" href="{{ path('privacy_requests') }}">Mes données et confidentialité</a></p>
+{% if message %}<p role="status" class="my-4">{{ message }}</p>{% endif %}
+<form method="post" data-profile class="mt-6 grid gap-4">
+<input type="hidden" name="_csrf_token" value="{{ csrf_token('identity_profile') }}">
+<input type="hidden" name="version" value="{{ profile.version }}">
+<label>Nom public (facultatif)<input class="block w-full rounded border p-3" type="text" name="display_name" autocomplete="nickname" value="{{ profile.displayName }}"></label>
+<label><input type="checkbox" name="optional_email_enabled" value="1"{% if profile.optionalEmailEnabled %} checked{% endif %}> Recevoir les communications facultatives par courriel</label>
+<label><input type="checkbox" name="optional_in_app_enabled" value="1"{% if profile.optionalInAppEnabled %} checked{% endif %}> Recevoir les notifications facultatives dans l’application</label>
+<p>Les messages essentiels liés au compte et aux paiements restent actifs. Les alertes de listes d’attente se règlent pour chaque course.</p>
+<button class="rounded bg-forest px-5 py-3 font-bold text-white">Enregistrer</button>
+</form>
+<form method="post" action="{{ path('identity_logout') }}" class="mt-6"><input type="hidden" name="_csrf_token" value="{{ csrf_token('logout') }}"><button class="ui-secondary">Déconnexion</button></form>
+</section>
+{% endblock %}

@@ -5,12 +5,22 @@ on:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    env:
+      REDIS_PASSWORD: ci-validation-only
+      REDIS_URL: redis://:ci-validation-only@redis:6379
     steps:
       - uses: actions/checkout@v4
       - name: Start development stack
-        run: make up
+        env:
+          REDIS_PASSWORD: ci-validation-only
+          REDIS_URL: redis://:ci-validation-only@redis:6379
+        run: |
+          make up
+          make migrate
       - name: Verify behavior and architecture
         run: |
+          python3 tests/Infrastructure/test-runner.py
+          make test
           make quality
           docker compose exec php composer validate --strict
           curl --fail http://localhost:8080/health
@@ -38,11 +48,19 @@ jobs:
       - name: Validate production build
         env:
           APP_SECRET: ci-validation-only
+          NEWSLETTER_SIGNING_SECRET: newsletter-ci-validation-only
           POSTGRES_PASSWORD: ci-validation-only
+          RUNTIME_DATABASE_URL: postgresql://runtime_validation:ci-validation-only@database:5432/app?serverVersion=17&charset=utf8
           MAILER_DSN: null://null
+          APP_BASE_URL: https://example.test
+          MAILER_FROM: no-reply@example.test
+          REDIS_PASSWORD: ci-validation-only
+          REDIS_URL: redis://:ci-validation-only@redis:6379
         run: |
+          python3 tests/Infrastructure/production-compose.py
           docker compose -f compose.prod.yaml config --quiet
           docker compose -f compose.prod.yaml build
+          python3 tests/Infrastructure/production-runtime.py
           docker compose -f compose.prod.yaml run --rm --no-deps php sh -c 'php bin/console cache:clear --env=prod --no-debug && php bin/console list doctrine:migrations --env=prod'
       - name: Show logs on failure
         if: failure()

@@ -31,3 +31,15 @@
 /.php-cs-fixer.php
 /.php-cs-fixer.cache
 ###< friendsofphp/php-cs-fixer ###
+
+###> symfony/asset-mapper ###
+/public/assets/
+/assets/vendor/
+###< symfony/asset-mapper ###
+
+/assets/styles/app.css
+
+# Local files excluded from publication
+.DS_Store
+.idea/
+.remember/

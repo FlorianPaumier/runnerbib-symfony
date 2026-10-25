@@ -1,0 +1,7 @@
+{% set navigation = [{route: 'races', label: 'Trouver une course'}] %}
+{% if app.user %}
+{% set navigation = navigation|merge([{route: 'cart', label: 'Panier'}, {route: 'seller_inventory', label: 'Vendre'}, {route: 'notifications', label: 'Notifications'}, {route: 'organizations', label: 'Organisation'}, {route: 'identity_account', label: 'Mon compte'}]) %}
+{% else %}
+{% set navigation = navigation|merge([{route: 'identity_login', label: 'Connexion'}]) %}
+{% endif %}
+{% for item in navigation %}<a href="{{ path(item.route) }}"{% if app.request.attributes.get('_route') == item.route %} aria-current="page"{% endif %} class="px-3 py-2 text-sm font-semibold">{{ item.label }}</a>{% endfor %}

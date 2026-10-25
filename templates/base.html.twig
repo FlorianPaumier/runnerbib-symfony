@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="Trouvez votre prochain dossard ou transmettez le vôtre à un autre coureur.">
+        <title>{% block title %}RelaisDossard{% endblock %}</title>
+        {% block stylesheets %}{% endblock %}
+        {% block javascripts %}{{ importmap('app') }}{% endblock %}
+    </head>
+    <body class="min-h-screen {% block body_class %}app-page{% endblock %}">
+        <a href="#contenu" class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:bg-white focus:p-4">Aller au contenu</a>
+        <header class="site-header border-b border-forest/15 bg-white">
+            <div class="site-header-inner mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-6">
+                <a href="/" class="text-xl font-extrabold tracking-tight text-forest" aria-label="RelaisDossard, accueil">RelaisDossard<span class="text-amber-700">.</span></a>
+                <nav class="site-nav" aria-label="Navigation principale">{% include '_navigation.html.twig' %}</nav>
+                <details class="site-menu"><summary>Menu <span aria-hidden="true">＋</span></summary><nav aria-label="Navigation mobile">{% include '_navigation.html.twig' %}</nav></details>
+            </div>
+        </header>
+        <main id="contenu" class="{% block main_class %}app-main{% endblock %}" tabindex="-1">{% block body %}{% endblock %}</main>
+        <footer class="site-footer mt-12 border-t border-forest/15 px-5 py-8 text-sm text-ink/75"><div class="mx-auto max-w-6xl">RelaisDossard · Un dossard, une nouvelle ligne de départ. <a class="underline" href="{{ path('newsletter') }}">Newsletter</a></div></footer>
+    </body>
+</html>

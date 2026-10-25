@@ -1,0 +1,9 @@
+{% extends 'base.html.twig' %}
+{% block title %}Mon organisation · RelaisDossard{% endblock %}
+{% block body %}
+<p class="text-sm font-semibold uppercase tracking-widest text-forest">Espace organisateur</p>
+<h1 class="mt-3 text-4xl font-extrabold">{{ organization.name }}</h1>
+<dl class="my-8 grid gap-5 rounded-2xl ui-surface bg-white p-6 sm:grid-cols-2"><div><dt class="text-sm">Validation</dt><dd class="mt-2 font-semibold">{{ {pending: 'En attente', approved: 'Approuvée', rejected: 'Refusée', suspended: 'Suspendue'}[organization.approvalState] }}</dd></div><div><dt class="text-sm">Votre rôle</dt><dd class="mt-2 font-semibold">{{ organization.memberRole == 'owner' ? 'Propriétaire' : 'Gestionnaire' }}</dd></div></dl>
+{% if organization.approvalState != 'approved' %}<p role="status" class="rounded-xl border border-forest/30 p-5">La validation de votre organisation est nécessaire pour gérer ses courses.</p>{% endif %}
+<a href="{{ path('identity_account') }}" class="mt-6 inline-block underline">Mon compte</a>
+{% endblock %}

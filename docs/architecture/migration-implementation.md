@@ -4,6 +4,8 @@ Implemented 2026-10-08 after baseline and architecture commits. Version202610080
 
 The SQL files are the exact column contracts for the combined tables. Fields merged from the 64-table inventory remain on their owning records. PurchaseItem additionally carries checkout_id to enforce item/purchase checkout consistency; ownership transitions tie recipient and sequence to their exact purchase item. No chat or optional analytics tables are installed.
 
+Current forward schema has **41 business tables**. Version20261009000200 adds `seller_onboarding_operations` because connected-account creation must have durable local identity before Stripe returns its non-null reference. Its operation parameters are immutable, private provider identity can be irreversibly redacted, and provider/scope/seller uniqueness prevents independent profile/listing creation journals. This is distinct from the positive-EUR payment-operation journal.
+
 ## Integrity
 
 Typed foreign keys, composite context keys, partial unique indexes and row checks protect race/bib identity, current-owner uniqueness, active organization ownership, active waitlist memberships, published offers, protected checkout items, unresolved financial attempts and provider-scope identities. All business/history FKs restrict deletion. Price arithmetic uses numeric casts to avoid bigint overflow during checks.

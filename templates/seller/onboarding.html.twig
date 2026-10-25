@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+{% block title %}Compte vendeur · RelaisDossard{% endblock %}
+{% block body %}
+<h1 class="text-3xl font-bold">Compte vendeur</h1>
+<p class="my-4">Configurez votre compte pour recevoir le produit de vos ventes. La configuration est partagée entre votre profil et vos annonces.</p>
+{% if error %}<p role="alert" class="my-4 rounded-lg bg-red-50 p-4 text-red-900">{{ error }}</p>{% endif %}
+{% if state %}<p role="status">{{ state.readiness == 'ready' ? 'Votre compte peut recevoir les transferts.' : 'La configuration doit encore être complétée.' }}</p>{% endif %}
+<form method="post" class="my-6 grid max-w-md gap-4">
+<input type="hidden" name="_token" value="{{ csrf_token('seller_onboarding') }}">
+<label for="seller-country">Pays de résidence (code à deux lettres)</label>
+<input id="seller-country" name="country" required maxlength="2" minlength="2" pattern="[A-Za-z]{2}" autocomplete="country" class="rounded-lg border p-3">
+<button type="submit" class="rounded-lg bg-forest px-5 py-3 text-white">Configurer mon compte vendeur</button>
+</form>
+<form method="post"><input type="hidden" name="_token" value="{{ csrf_token('seller_onboarding') }}"><input type="hidden" name="action" value="reconcile"><button type="submit" class="underline">Vérifier la configuration auprès du prestataire</button></form>
+<p class="mt-6">Un transfert vers votre compte vendeur et un versement vers votre banque sont deux étapes distinctes.</p>
+{% endblock %}

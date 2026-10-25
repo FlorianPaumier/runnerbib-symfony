@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+{% block title %}Dossard · {{ offer.race.name }}{% endblock %}
+{% block body %}
+<a href="{{ path('race_detail', {id: offer.race.id}) }}" class="underline">Retour à la course</a>
+<h1 class="offer-heading mt-6 text-3xl font-bold">Dossard pour {{ offer.race.name }}</h1><p class="offer-context">{{ offer.race.city }} · {{ (offer.race.distanceMetres / 1000)|number_format(offer.race.distanceMetres % 1000 == 0 ? 0 : 1, ',', ' ') }} km · {{ offer.race.startsAt|date('d/m/Y', offer.race.timezone) }}</p>
+<dl class="detail-facts my-6 grid gap-4 rounded-xl ui-surface bg-white p-6 sm:grid-cols-3"><div><dt>Prix du dossard</dt><dd>{{ offer.access.priceCents|euros }}</dd></div><div><dt>Frais acheteur</dt><dd>{{ offer.buyerFeeCents|euros }}</dd></div><div><dt>Total acheteur</dt><dd class="font-bold">{{ offer.buyerTotalCents|euros }}</dd></div></dl>
+{% if offer.access.accessState == 'unavailable' %}<p role="status">Cette offre est indisponible.</p>{% elseif offer.access.hasCheckoutProtection %}<p role="status">Un paiement protège actuellement ce dossard. Aucune nouvelle réservation n’est possible.</p>{% elseif offer.access.accessState == 'priority' %}<p role="status">Accès prioritaire aux membres inscrits lors de la disponibilité, jusqu’au <time datetime="{{ offer.access.priorityEndsAt|date('c') }}">{{ offer.access.priorityEndsAt|date('d/m/Y H:i', offer.race.timezone) }} ({{ offer.race.timezone }})</time>.</p>{% else %}<p role="status">L’accès à cette offre est public.</p>{% endif %}
+{% if offer.access.resaleDeadline %}<p class="my-4">Fin de la revente : {{ offer.access.resaleDeadline|date('d/m/Y H:i', offer.race.timezone) }} ({{ offer.race.timezone }}).</p>{% endif %}
+{% if offer.access.canInitiatePurchase %}<form method="post" action="{{ path('cart_add', {id: offer.access.listingId}) }}"><input type="hidden" name="_token" value="{{ csrf_token('cart_add_' ~ offer.access.listingId) }}"><button type="submit" class="rounded-lg bg-forest px-5 py-3 text-white">Ajouter au panier</button></form>{% elseif not app.user %}<a class="underline" href="{{ path('identity_login') }}">Connectez-vous pour vérifier votre accès</a>{% endif %}
+<p class="mt-6">Ajouter au panier ne réserve pas le dossard. La fenêtre prioritaire commune et la protection individuelle pendant le paiement sont distinctes.</p>
+{% endblock %}

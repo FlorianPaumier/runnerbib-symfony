@@ -1,7 +1,7 @@
 {
     "source": {"directories": ["src/Domain", "src/Application"]},
-    "timeout": 10,
-    "threads": 2,
+    "timeout": 300,
+    "threads": 4,
     "testFramework": "phpunit",
     "mutators": {"@default": true},
     "logs": {

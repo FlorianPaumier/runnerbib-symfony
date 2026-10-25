@@ -1,0 +1,23 @@
+{% extends 'base.html.twig' %}
+{% block title %}État de votre achat · RelaisDossard{% endblock %}
+{% block body %}
+<section class="mx-auto max-w-lg">
+<h1>État de votre achat</h1>
+{% if checkout %}
+{% set messages = {
+    pending: 'En attente de confirmation du paiement. Votre retour sur cette page ne confirme pas l’achat.',
+    processing: 'Paiement en cours de traitement. Les dossards restent protégés pendant la vérification ; ne recommencez pas le paiement.',
+    unknown: 'Le résultat du paiement reste à vérifier. Ne recommencez pas le paiement pendant cette vérification.',
+    cancelled: 'Achat annulé. Aucun achat partiel n’est confirmé. Si des fonds ont été collectés, leur restitution doit encore être vérifiée.',
+    failed: 'Achat non abouti. Aucun achat partiel n’est confirmé. Si des fonds ont été collectés, leur restitution doit encore être vérifiée.',
+    completed: 'Achat confirmé par la plateforme. La mise à jour de l’inscription officielle à la course est distincte.'
+} %}
+<p role="status" class="my-6">{{ messages[checkout.state] }}</p>
+<p>Total de cet achat : <strong>{{ checkout.totalCents|euros }}</strong></p>
+<a class="ui-secondary mt-6 inline-block" href="{{ path('checkout_status', {id: checkout.checkoutId}) }}">Actualiser l’état</a>
+{% else %}
+<p role="status" class="my-6">Cet achat est introuvable ou n’est pas accessible depuis votre compte.</p>
+{% endif %}
+<p class="mt-6"><a class="underline" href="{{ path('cart') }}">Voir mon panier</a></p>
+</section>
+{% endblock %}

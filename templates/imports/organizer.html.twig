@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+{% block title %}Importer les inscriptions · RelaisDossard{% endblock %}
+{% block body %}
+<h1 class="text-3xl font-extrabold">Importer les inscriptions</h1>
+<p class="my-5">L’aperçu vous aide à contrôler votre CSV. Seul le résultat de l’importation confirme les inscriptions enregistrées.</p>
+{% if error %}<p role="alert">{{ error }}</p>{% endif %}
+{% if stage %}
+<h2 class="mt-6 text-xl font-bold">{{ stage == 'preview' ? 'Aperçu' : 'Résultat de l’importation' }}</h2>
+{% set labels = {'valid': 'Valide', 'imported': 'Importée', 'updated': 'Mise à jour', 'protected': 'Protégée', 'duplicate': 'Doublon ignoré', 'invalid': 'Invalide'} %}
+{% set countLabels = {'valid': 'Valides', 'imported': 'Importées', 'updated': 'Mises à jour', 'protected': 'Protégées', 'duplicate': 'Doublons ignorés', 'invalid': 'Invalides'} %}
+<p class="my-4">{% for status, label in countLabels %}{{ label }} : {{ rows|filter(row => row.status == status)|length }}{{ not loop.last ? ' · ' : '' }}{% endfor %}</p>
+{% set reasons = {'columns': 'Nombre de colonnes incorrect', 'bib': 'Dossard manquant', 'email': 'Adresse e-mail incorrecte'} %}
+<div class="ui-table-scroll" role="region" aria-label="Résultats de l’importation" tabindex="0"><table class="my-4 w-full text-left"><thead><tr><th scope="col">Ligne</th><th scope="col">Dossard</th><th scope="col">Résultat</th><th scope="col">À vérifier</th></tr></thead><tbody>
+{% for row in rows %}<tr><td>{{ row.row }}</td><td>{{ row.bib|default('—') }}</td><td>{{ labels[row.status]|default('Indisponible') }}</td><td>{{ row.reason is defined ? reasons[row.reason]|default('Vérifiez cette ligne') : '—' }}</td></tr>{% endfor %}
+</tbody></table></div>
+{% if stage == 'execute' %}<p class="my-4">Cet identifiant conserve le résultat enregistré en cas de nouvelle tentative. <a class="underline" href="{{ path('organizer_import', {raceId: raceId}) }}">Commencer un nouvel import</a> pour un autre fichier.</p>{% endif %}
+{% if stage == 'preview' %}<p>Choisissez à nouveau le même fichier CSV puis confirmez l’importation. Le fichier sera contrôlé à nouveau avant tout enregistrement.</p>{% endif %}
+{% endif %}
+{% if enabled|default(false) %}
+<form method="post" enctype="multipart/form-data" class="my-6 max-w-2xl rounded-xl ui-surface bg-white p-6">
+<input type="hidden" name="_token" value="{{ csrf_token('organizer_import_' ~ raceId) }}">
+<input type="hidden" name="import_id" value="{{ importId }}">
+<label class="block font-semibold" for="csv">Fichier CSV des inscriptions</label>
+<input id="csv" name="csv" type="file" accept=".csv,text/csv" required class="my-3 block w-full">
+<label class="block" for="mode">Traitement des inscriptions existantes</label>
+<select id="mode" name="mode" class="my-3 rounded border p-2"><option value="skip_invalid" {{ mode == 'skip_invalid' ? 'selected' : '' }}>Ignorer les lignes invalides et les doublons</option>{% if mutableFields %}<option value="update" {{ mode == 'update' ? 'selected' : '' }}>Mettre à jour les champs autorisés</option>{% endif %}</select>
+{% if mutableFields %}<fieldset class="my-4"><legend>Champs à mettre à jour uniquement en mode mise à jour</legend>{% for field in mutableFields %}<label class="mr-4"><input type="checkbox" name="champs[]" value="{{ field }}" {{ field in selectedFields ? 'checked' : '' }}> {{ field == 'name' ? 'Nom du titulaire' : 'Adresse e-mail du titulaire' }}</label>{% endfor %}</fieldset>{% endif %}
+<p class="my-4">Les doublons sont conservés sans modification par défaut. Les inscriptions protégées, la propriété des dossards et les paiements ne sont pas modifiés par ce formulaire.</p>
+<button name="action" value="preview" class="mr-3 rounded border px-5 py-3">Voir l’aperçu</button>
+<button name="action" value="execute" class="rounded bg-forest px-5 py-3 font-semibold text-white">Importer</button>
+</form>
+{% endif %}
+{% endblock %}

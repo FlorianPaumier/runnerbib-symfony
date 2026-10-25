@@ -3,6 +3,8 @@
 When present, inherit workspace `../AGENTS.md`. Local role instructions live in `.agents/roles/`; they do not automatically authorize delegation. Use Symfony 8.1 and PHP 8.4.1+. Follow red → green → refactor for each behavior; do not implement business behavior before observing its failing test.
 
 ## Boundaries
+
+For web UI changes, read [DESIGN.md](DESIGN.md) for the RelaisDossard marketplace design direction.
 - `src/Domain/`: framework-free business entities, value objects and rules.
 - `src/Application/`: use cases and ports; depends only on Domain and PHP.
 - `src/Infrastructure/`: adapters for Doctrine, mail and external systems.

@@ -1,0 +1,3 @@
+{% extends 'base.html.twig' %}
+{% block title %}Filtres invalides · RelaisDossard{% endblock %}
+{% block body %}<h1 class="text-3xl font-bold">Recherche de courses</h1><p role="alert" class="my-6 rounded-xl border border-red-700 ui-surface bg-white p-6">Vérifiez les filtres : dates valides, distances positives et distance minimale inférieure à la maximale.</p><a href="{{ path('races') }}" class="underline">Recommencer la recherche</a>{% endblock %}

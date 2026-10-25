@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ race.name }} · RelaisDossard{% endblock %}
+{% block body %}
+<a href="{{ path('races') }}" class="text-sm underline">Toutes les courses</a>
+<p class="mt-8 text-sm font-semibold uppercase tracking-widest text-forest">{{ race.city }} · {{ race.countryCode }}</p>
+<h1 class="mt-3 text-4xl font-extrabold">{{ race.name }}</h1>
+<dl class="detail-facts my-8 grid gap-5 rounded-2xl ui-surface bg-white p-6 sm:grid-cols-3"><div><dt class="text-sm">Distance</dt><dd class="mt-2 text-xl font-bold">{{ race.distanceMetres / 1000 }} km</dd></div><div><dt class="text-sm">Départ (heure locale)</dt><dd class="mt-2 font-bold">{{ race.startsAt|date('d/m/Y H:i', race.timezone) }}<br><span class="text-sm font-normal">{{ race.timezone }}</span></dd></div><div><dt class="text-sm">Organisateur</dt><dd class="mt-2 font-bold">{{ race.organizationName|default('Non renseigné') }}</dd></div></dl>
+{% if race.description %}<p class="whitespace-pre-line">{{ race.description }}</p>{% endif %}
+{% if race.officialUrl %}<a href="{{ race.officialUrl }}" rel="noopener noreferrer" class="my-5 inline-block underline">Site officiel de la course</a>{% endif %}
+<section class="race-alert-panel mt-10 rounded-2xl border border-forest/20 p-6"><h2 class="text-xl font-bold">Dossards</h2><a class="mt-4 inline-block underline" href="{{ path('race_alerts', {id: race.id}) }}">Gérer mes alertes pour cette course</a><p class="mt-3">La disponibilité et les conditions de transfert doivent être confirmées pour chaque offre.</p></section>
+{% endblock %}

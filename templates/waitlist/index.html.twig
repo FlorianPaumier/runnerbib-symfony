@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+{% block title %}Alertes · {{ race.name }}{% endblock %}
+{% block body %}
+<a href="{{ path('race_detail', {id: race.id}) }}">Retour à la course</a>
+<h1 class="mt-6 text-3xl font-bold">Alertes pour {{ race.name }}</h1>
+<p class="my-4">Recevez une alerte lorsqu’un dossard devient disponible. La liste ne réserve aucun dossard individuellement.</p>
+{% if membership %}<p role="status">Vous êtes inscrit à cette liste.</p>{% endif %}
+<form method="post" class="my-6 grid gap-4">
+<input type="hidden" name="_token" value="{{ csrf_token('race_alerts_' ~ race.id) }}">
+<input type="hidden" name="action" value="{{ membership ? 'preferences' : 'join' }}">
+<label><input type="checkbox" name="email_enabled" value="1" {% if membership and membership.emailEnabled %}checked{% endif %}> Alertes par email</label>
+<label><input type="checkbox" name="in_app_enabled" value="1" {% if membership and membership.inAppEnabled %}checked{% endif %}> Alertes dans mon compte</label>
+<button type="submit" class="rounded-lg bg-forest px-5 py-3 text-white">{{ membership ? 'Enregistrer les préférences' : 'Rejoindre la liste' }}</button>
+</form>
+{% if membership %}<form method="post">
+<input type="hidden" name="_token" value="{{ csrf_token('race_alerts_' ~ race.id) }}">
+<input type="hidden" name="action" value="leave">
+<button type="submit" class="underline">Quitter la liste</button>
+</form>{% endif %}
+{% endblock %}

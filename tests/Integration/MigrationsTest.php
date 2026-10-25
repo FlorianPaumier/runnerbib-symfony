@@ -41,11 +41,11 @@ final class MigrationsTest extends KernelTestCase
     public function testFullSchemaCanBeAppliedRolledBackAndReplayed(): void
     {
         $this->migrate('latest');
-        self::assertSame(40, $this->integerValue("SELECT count(*) FROM information_schema.tables WHERE table_schema = 'public' AND table_type = 'BASE TABLE' AND table_name <> 'doctrine_migration_versions'"));
+        self::assertSame(41, $this->integerValue("SELECT count(*) FROM information_schema.tables WHERE table_schema = 'public' AND table_type = 'BASE TABLE' AND table_name NOT IN ('doctrine_migration_versions','messenger_messages')"));
         $this->migrate('first');
-        self::assertSame(0, $this->integerValue("SELECT count(*) FROM information_schema.tables WHERE table_schema = 'public' AND table_type = 'BASE TABLE' AND table_name <> 'doctrine_migration_versions'"));
+        self::assertSame(0, $this->integerValue("SELECT count(*) FROM information_schema.tables WHERE table_schema = 'public' AND table_type = 'BASE TABLE' AND table_name NOT IN ('doctrine_migration_versions','messenger_messages')"));
         $this->migrate('latest');
-        self::assertSame(40, $this->integerValue("SELECT count(*) FROM information_schema.tables WHERE table_schema = 'public' AND table_type = 'BASE TABLE' AND table_name <> 'doctrine_migration_versions'"));
+        self::assertSame(41, $this->integerValue("SELECT count(*) FROM information_schema.tables WHERE table_schema = 'public' AND table_type = 'BASE TABLE' AND table_name NOT IN ('doctrine_migration_versions','messenger_messages')"));
     }
 
     public function testCommittedCheckoutTermsCannotBeRepriced(): void

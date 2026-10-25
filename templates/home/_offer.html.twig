@@ -1,0 +1,5 @@
+<article class="offer-card" data-landing-target="reveal">
+    <div class="offer-top"><div class="offer-bib">{{ (offer.race.distanceMetres / 1000)|number_format(offer.race.distanceMetres % 1000 == 0 ? 0 : 1, ',', ' ') }}<small>km</small></div><div><h3><a href="{{ path('listing_offer', {id: offer.access.listingId}) }}">{{ offer.race.name }}</a></h3><p>{{ offer.race.city }} · {{ offer.race.startsAt|date('d/m/Y', offer.race.timezone) }}</p></div></div>
+    <div class="offer-bottom"><p><strong>{{ offer.buyerTotalCents|euros }}</strong><span>Total acheteur</span></p><p>{{ offer.access.priceCents|euros }} + {{ offer.buyerFeeCents|euros }} de frais</p></div>
+    <p class="offer-status">{% if offer.access.hasCheckoutProtection %}Paiement en cours{% elseif offer.access.accessState == 'priority' %}Accès prioritaire jusqu’au {{ offer.access.priorityEndsAt|date('d/m/Y H:i', offer.race.timezone) }}{% else %}Accès public{% endif %}</p>
+</article>

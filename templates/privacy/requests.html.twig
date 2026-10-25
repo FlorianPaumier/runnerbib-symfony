@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+{% block title %}Mes données et confidentialité · RelaisDossard{% endblock %}
+{% block body %}
+<section class="mx-auto max-w-2xl">
+<h1 class="text-3xl font-bold">Mes données et confidentialité</h1>
+{% if error %}<p role="alert" class="my-4 rounded-lg border border-red-700 ui-surface bg-white p-4">{{ error }}</p>{% endif %}
+<p class="my-4">Demandez l’accès à vos données, leur rectification ou la suppression de votre compte. Vous recevrez un code pour suivre l’examen de votre demande.</p>
+{% set kinds = {'access_export': 'Demander l’accès à mes données', 'correction': 'Demander la rectification de mes données', 'deletion': 'Demander la suppression de mon compte'} %}
+{% for kind, label in kinds %}
+<form method="post" action="{{ path('privacy_requests') }}" class="my-6 rounded-xl border border-forest/15 ui-surface bg-white p-6">
+<input type="hidden" name="_token" value="{{ csrf_token('privacy_request') }}">
+<input type="hidden" name="request_id" value="{{ ids[kind] }}">
+<input type="hidden" name="kind" value="{{ kind }}">
+{% if kind == 'deletion' %}<p class="mb-4">Cette demande désactive votre compte et retire vos annonces invendues. Les données nécessaires aux paiements, aux litiges et aux obligations de conservation restent protégées pendant l’examen.</p>{% endif %}
+<button class="rounded-lg border border-forest px-4 py-3 font-semibold">{{ label }}</button>
+</form>
+{% endfor %}
+<a class="underline" href="{{ path('privacy_status') }}">Consulter une demande avec mon code de suivi</a>
+</section>
+{% endblock %}

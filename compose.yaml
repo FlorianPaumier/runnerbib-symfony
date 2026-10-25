@@ -6,11 +6,38 @@ services:
       dockerfile: docker/php/Dockerfile
       target: development
     environment:
+      REDIS_URL: ${REDIS_URL:?Set Redis DSN}
+      STRIPE_PROVIDER_SCOPE: ${STRIPE_PROVIDER_SCOPE:-unconfigured}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+      STRIPE_LIVE_MODE: ${STRIPE_LIVE_MODE:-0}
+      STRIPE_DASHBOARD: ${STRIPE_DASHBOARD:-}
+      STRIPE_FEES_COLLECTOR: ${STRIPE_FEES_COLLECTOR:-}
+      STRIPE_LOSSES_COLLECTOR: ${STRIPE_LOSSES_COLLECTOR:-}
+      STRIPE_SELLER_RETURN_URL: ${STRIPE_SELLER_RETURN_URL:-}
+      STRIPE_SELLER_REFRESH_URL: ${STRIPE_SELLER_REFRESH_URL:-}
+      OPTIONAL_NOTIFICATION_EMAIL_POLICY_VERSION: ${OPTIONAL_NOTIFICATION_EMAIL_POLICY_VERSION:-}
+      OPTIONAL_NOTIFICATION_IN_APP_POLICY_VERSION: ${OPTIONAL_NOTIFICATION_IN_APP_POLICY_VERSION:-}
+      RACE_NOTIFICATION_EMAIL_POLICY_VERSION: ${RACE_NOTIFICATION_EMAIL_POLICY_VERSION:-}
+      RACE_NOTIFICATION_IN_APP_POLICY_VERSION: ${RACE_NOTIFICATION_IN_APP_POLICY_VERSION:-}
+      NEWSLETTER_POLICY_VERSION: ${NEWSLETTER_POLICY_VERSION:-}
+      PRIVACY_PROGRESS_LIFETIME_SECONDS: ${PRIVACY_PROGRESS_LIFETIME_SECONDS:-}
+      NEWSLETTER_SIGNING_SECRET: ${NEWSLETTER_SIGNING_SECRET:-local-development-newsletter-only}
+      NEWSLETTER_PREVIOUS_SIGNING_SECRETS_JSON: ${NEWSLETTER_PREVIOUS_SIGNING_SECRETS_JSON:-[]}
+      PROOF_STORAGE_DIRECTORY: ${PROOF_STORAGE_DIRECTORY:-/app/var/private/proofs}
+      PROOF_ALLOWED_MIME_TYPES: ${PROOF_ALLOWED_MIME_TYPES:-[]}
+      PROOF_MAXIMUM_BYTES: ${PROOF_MAXIMUM_BYTES:-0}
+      IMPORT_HEADERS_JSON: ${IMPORT_HEADERS_JSON:-{}}
+      IMPORT_MAXIMUM_BYTES: ${IMPORT_MAXIMUM_BYTES:-0}
+      IMPORT_MAXIMUM_ROWS: ${IMPORT_MAXIMUM_ROWS:-0}
+      IMPORT_MUTABLE_FIELDS_JSON: ${IMPORT_MUTABLE_FIELDS_JSON:-[]}
       APP_ENV: dev
       APP_DEBUG: '1'
       APP_SECRET: ${APP_SECRET:-local-development-only}
       DATABASE_URL: postgresql://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-app}@database:5432/${POSTGRES_DB:-app}?serverVersion=17&charset=utf8
       MAILER_DSN: smtp://mailpit:1025
+      APP_BASE_URL: ${APP_BASE_URL:-http://localhost:${HTTP_PORT:-8080}}
+      MAILER_FROM: ${MAILER_FROM:-no-reply@example.test}
       XDEBUG_MODE: ${XDEBUG_MODE:-off}
     volumes:
       - .:/app
@@ -43,6 +70,32 @@ services:
       - database_data:/var/lib/postgresql/data
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+  database-test:
+    image: postgres:17-alpine
+    profiles: ['test']
+    command: ['postgres', '-c', 'max_wal_size=128MB', '-c', 'min_wal_size=32MB']
+    environment:
+      POSTGRES_DB: test
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: local-test-only
+    tmpfs:
+      - /var/lib/postgresql/data:size=1g
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U test -d test']
+      interval: 1s
+      timeout: 3s
+      retries: 30
+  redis:
+    image: redis:7.4-alpine
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?Set Redis password}
+      REDISCLI_AUTH: ${REDIS_PASSWORD:?Set Redis password}
+    command: ['sh', '-c', 'exec redis-server --save "" --appendonly no --requirepass "$$REDIS_PASSWORD"']
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 5s
       timeout: 3s
       retries: 10

@@ -25,11 +25,11 @@ deptrac:
     - name: Framework
       collectors:
         - type: classLike
-          value: ^Symfony\\
+          value: ^(Symfony|Twig)\\
     - name: Vendors
       collectors:
         - type: classLike
-          value: ^(Doctrine|Psr)\\
+          value: ^(Doctrine|Psr|Stripe)\\
   ruleset:
     Domain: []
     Application: [Domain]

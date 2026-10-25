@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ heading }} · RelaisDossard{% endblock %}
+{% block body %}
+<div class="auth-layout"><section class="auth-form">
+<h1 class="text-3xl font-bold">{{ heading }}</h1>
+{% if message %}<p role="status" class="my-4">{{ message }}</p>{% endif %}
+{% if kind == 'account' %}<form method="post" action="{{ path('identity_logout') }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token('logout') }}"><button>Déconnexion</button></form>{% endif %}
+{% if kind not in ['message', 'account'] %}
+<form method="post" class="mt-6 grid gap-4">
+<input type="hidden" name="_csrf_token" value="{{ csrf_token(kind == 'login' ? 'authenticate' : 'identity') }}">
+{% if kind != 'reset' %}<label>Adresse courriel<input class="block w-full rounded border p-3" type="email" name="{{ kind == 'login' ? '_username' : 'email' }}" autocomplete="email" required></label>{% endif %}
+{% if kind in ['login', 'signup', 'reset'] %}<label>Mot de passe<input class="block w-full rounded border p-3" type="password" name="{{ kind == 'login' ? '_password' : 'password' }}" autocomplete="{{ kind == 'login' ? 'current-password' : 'new-password' }}" required></label>{% endif %}
+{% if kind == 'signup' %}<label><input type="checkbox" name="terms" value="1" required> J’accepte les conditions d’utilisation.</label>{% endif %}
+<button class="rounded bg-forest px-5 py-3 font-bold text-white">Continuer</button>
+</form>
+{% endif %}
+<nav class="mt-6 flex gap-4"><a href="{{ path('identity_login') }}">Connexion</a><a href="{{ path('identity_register') }}">Inscription</a><a href="{{ path('identity_forgot') }}">Mot de passe oublié</a><a href="{{ path('identity_resend_verification') }}">Renvoyer la vérification</a></nav>
+</section><aside class="auth-story"><p class="eyebrow">Le relais entre coureurs</p><strong>Le départ.<br>Et la suite.</strong><p>Trouvez votre prochaine course, transmettez votre dossard et gardez le lien avec vos départs à venir.</p></aside></div>
+{% endblock %}

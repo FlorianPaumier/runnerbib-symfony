@@ -18,9 +18,402 @@ services:
     # this creates a service per class whose id is the fully-qualified class name
     App\:
         resource: '../src/'
+        exclude:
+            - '../src/Domain/'
+            - '../src/Application/'
+            - '../src/Infrastructure/Identity/SecurityUser.php'
+            - '../src/Infrastructure/Finance/StripeSellerConfiguration.php'
+            - '../src/Infrastructure/Finance/StripeHostedCheckoutProvider.php'
+            - '../src/Infrastructure/Finance/StripeSellerProvider.php'
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
 
     App\Application\Health\ReadinessProbe:
         alias: App\Infrastructure\Health\PostgresReadinessProbe
+
+    App\Application\Health\CheckReadiness: ~
+
+    App\Application\Races\RaceRepository:
+        alias: App\Infrastructure\Races\DbalRaceRepository
+
+    App\Application\Races\RaceDiscovery:
+        alias: App\Infrastructure\Races\DbalRaceDiscovery
+
+    App\Application\Races\DiscoverRaces: ~
+
+    App\Application\Operations\TransactionManager:
+        alias: App\Infrastructure\Operations\DbalTransactionManager
+
+    App\Application\Operations\OutboxWriter:
+        alias: App\Infrastructure\Operations\DbalOutboxWriter
+
+    App\Application\Operations\AuditWriter:
+        alias: App\Infrastructure\Operations\DbalAuditWriter
+
+    App\Application\Operations\EffectConsumer:
+        alias: App\Infrastructure\Operations\DbalEffectConsumer
+
+    App\Application\Operations\OutboxQueue:
+        alias: App\Infrastructure\Operations\DbalOutboxQueue
+
+    App\Application\Operations\MessageDispatcher:
+        alias: App\Infrastructure\Operations\MessengerMessageDispatcher
+
+    App\Application\Operations\DispatchOutbox: ~
+
+    App\Application\Operations\PurgeExpiredRecords: ~
+
+    App\Application\Operations\RetentionStore:
+        alias: App\Infrastructure\Operations\DbalRetentionStore
+
+    App\Application\Identity\IdentityStore:
+        alias: App\Infrastructure\Identity\DbalIdentityStore
+
+    App\Application\Identity\IdentityEffects:
+        alias: App\Infrastructure\Identity\OutboxIdentityEffects
+
+    App\Application\Identity\RegisterAccount: ~
+
+    App\Application\Races\FindPublicRace: ~
+
+    App\Application\Organizations\OrganizationStore:
+        alias: App\Infrastructure\Organizations\DbalOrganizationStore
+
+    App\Application\Organizations\ManageOrganizations: ~
+
+    App\Application\Identity\CurrentIdentity:
+        alias: App\Infrastructure\Identity\SecurityCurrentIdentity
+
+    App\Application\Organizations\OrganizationScope: ~
+
+    App\Application\Races\ManageRaces: ~
+
+    App\Application\Inventory\EntitlementStore:
+        alias: App\Infrastructure\Inventory\DbalEntitlementStore
+
+    App\Application\Inventory\ClaimEntitlement: ~
+
+    App\Application\Operations\CredentialDeliveryStore:
+        alias: App\Infrastructure\Operations\DbalCredentialDeliveryStore
+
+    App\Application\Operations\CredentialMailSender:
+        alias: App\Infrastructure\Operations\SymfonyCredentialMailSender
+
+    App\Infrastructure\Operations\SymfonyCredentialMailSender:
+        arguments:
+            $transport: '@mailer.default_transport'
+            $baseUrl: '%env(APP_BASE_URL)%'
+            $sender: '%env(MAILER_FROM)%'
+
+    App\Application\Operations\DeliverCredentialMail: ~
+
+    App\Application\Identity\ProfileStore:
+        alias: App\Infrastructure\Identity\DbalProfileStore
+
+    App\Application\Identity\ManageProfile:
+        arguments:
+            $optionalEmailPolicyVersion: '%env(OPTIONAL_NOTIFICATION_EMAIL_POLICY_VERSION)%'
+            $optionalInAppPolicyVersion: '%env(OPTIONAL_NOTIFICATION_IN_APP_POLICY_VERSION)%'
+
+    App\Infrastructure\Operations\CredentialMailMessageHandler:
+        tags: ['app.outbox_event_handler']
+
+    App\Infrastructure\Operations\AesCredentialTokenProtector:
+        arguments:
+            $secret: '%env(APP_SECRET)%'
+
+    App\Application\Operations\CredentialTokenProtector:
+        alias: App\Infrastructure\Operations\AesCredentialTokenProtector
+
+    App\Application\Identity\AccountLifecycleStore:
+        alias: App\Infrastructure\Identity\DbalAccountLifecycleStore
+
+    App\Application\Identity\AdministerAccounts: ~
+
+    app.redis_session_client:
+        class: Predis\Client
+        arguments: ['%env(REDIS_URL)%']
+
+    app.redis_session_handler:
+        class: Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler
+        arguments:
+            $redis: '@app.redis_session_client'
+            $options: { prefix: 'runnerbib.%kernel.environment%.session.' }
+
+    App\Application\Availability\WaitlistStore:
+        alias: App\Infrastructure\Availability\DbalWaitlistStore
+
+    App\Application\Availability\ManageRaceWaitlist:
+        arguments:
+            $raceEmailPolicyVersion: '%env(RACE_NOTIFICATION_EMAIL_POLICY_VERSION)%'
+            $raceInAppPolicyVersion: '%env(RACE_NOTIFICATION_IN_APP_POLICY_VERSION)%'
+
+    App\Application\Notifications\NotificationStore:
+        alias: App\Infrastructure\Notifications\DbalNotificationStore
+
+    App\Application\Notifications\NotificationPreferenceStore:
+        alias: App\Infrastructure\Notifications\DbalNotificationPreferenceStore
+
+    App\Application\Notifications\RecipientInbox: ~
+
+    App\Infrastructure\Selling\DbalListingStore:
+        arguments:
+            $providerScope: '%env(STRIPE_PROVIDER_SCOPE)%'
+
+    App\Application\Availability\AvailabilitySnapshotStore:
+        alias: App\Infrastructure\Availability\DbalAvailabilitySnapshotStore
+
+    App\Application\Availability\AvailabilityPublisher:
+        alias: App\Application\Availability\CaptureAvailability
+
+    App\Application\Availability\CaptureAvailability: ~
+
+    App\Application\Selling\ListingStore:
+        alias: App\Infrastructure\Selling\DbalListingStore
+
+    App\Application\Selling\ManageListings: ~
+
+    App\Application\Availability\AvailabilityAccessStore:
+        alias: App\Infrastructure\Availability\DbalAvailabilityAccessStore
+
+    App\Application\Availability\FindOfferAccess: ~
+
+    App\Application\Checkout\CartStore:
+        alias: App\Infrastructure\Checkout\DbalCartStore
+
+    App\Domain\Finance\FeePolicy: ~
+
+    App\Application\Checkout\ManageCart: ~
+
+    App\Application\Checkout\CheckoutStatusStore:
+        alias: App\Infrastructure\Checkout\DbalCheckoutStatusStore
+
+    App\Application\Checkout\FindCheckoutStatus: ~
+
+    App\Application\Checkout\CheckoutAuthorizationStore:
+        alias: App\Infrastructure\Checkout\DbalCheckoutAuthorizationStore
+
+    App\Application\Checkout\AuthorizeCheckout:
+        arguments:
+            $scope: '%env(STRIPE_PROVIDER_SCOPE)%'
+            $feePolicyVersion: 'fees-v1'
+            $acknowledgmentVersion: 'transfer-v1'
+            $providerConfiguration:
+                success_url: '%env(APP_BASE_URL)%/achat/retour?session={CHECKOUT_SESSION_ID}'
+                cancel_url: '%env(APP_BASE_URL)%/achat/retour?session={CHECKOUT_SESSION_ID}'
+                api_version: '2024-06-20'
+                automatic_tax: false
+
+    App\Application\Checkout\StartCheckout: ~
+
+    App\Application\Finance\SellerProvider:
+        factory: ['@App\Infrastructure\Finance\SellerProviderFactory', 'create']
+        arguments:
+            $apiKey: '%env(STRIPE_SECRET_KEY)%'
+            $dashboard: '%env(STRIPE_DASHBOARD)%'
+            $feesCollector: '%env(STRIPE_FEES_COLLECTOR)%'
+            $lossesCollector: '%env(STRIPE_LOSSES_COLLECTOR)%'
+            $returnUrl: '%env(STRIPE_SELLER_RETURN_URL)%'
+            $refreshUrl: '%env(STRIPE_SELLER_REFRESH_URL)%'
+            $providerScope: '%env(STRIPE_PROVIDER_SCOPE)%'
+
+    App\Application\Finance\SellerOnboardingStore:
+        alias: App\Infrastructure\Finance\DbalSellerOnboardingStore
+
+    App\Application\Finance\SellerOnboarding:
+        arguments:
+            $providerScope: '%env(STRIPE_PROVIDER_SCOPE)%'
+
+    App\Application\Finance\ReconcileSellers:
+        arguments:
+            $scope: '%env(STRIPE_PROVIDER_SCOPE)%'
+
+    App\Application\Finance\ProcessProviderEvents: ~
+
+    App\Application\Selling\FindListingOffer: ~
+
+    App\Application\Inventory\OwnershipProofStore:
+        alias: App\Infrastructure\Inventory\DbalOwnershipProofStore
+
+    App\Application\Inventory\SubmitOwnershipProof: ~
+
+    App\Application\Notifications\AvailabilityBatchStore:
+        alias: App\Infrastructure\Notifications\DbalAvailabilityBatchStore
+
+    App\Application\Notifications\ScheduleAvailabilityBatch: ~
+
+    App\Application\Notifications\RunAvailabilityBatch: ~
+
+    App\Application\Notifications\AvailabilityDigestStore:
+        alias: App\Infrastructure\Notifications\DbalAvailabilityDigestStore
+
+    App\Application\Notifications\AvailabilityDigestSender:
+        alias: App\Infrastructure\Notifications\SymfonyAvailabilityDigestSender
+
+    App\Infrastructure\Notifications\SymfonyAvailabilityDigestSender:
+        arguments:
+            $transport: '@mailer.default_transport'
+            $baseUrl: '%env(APP_BASE_URL)%'
+            $sender: '%env(MAILER_FROM)%'
+
+    App\Application\Notifications\DeliverAvailabilityDigest: ~
+
+    App\Infrastructure\Notifications\AvailabilityMessageHandler:
+        tags: ['app.outbox_event_handler']
+
+    App\Infrastructure\Finance\DbalPaymentSubmissionStore:
+        arguments:
+            $providerScope: '%env(STRIPE_PROVIDER_SCOPE)%'
+
+    App\Application\Imports\EligibilityImportStore:
+        alias: App\Infrastructure\Imports\DbalEligibilityImportStore
+
+    App\Application\Imports\PreviewEligibilityImport:
+        arguments:
+            $headers: '%env(json:IMPORT_HEADERS_JSON)%'
+            $maximumBytes: '%env(int:IMPORT_MAXIMUM_BYTES)%'
+            $maximumRows: '%env(int:IMPORT_MAXIMUM_ROWS)%'
+
+    App\Application\Imports\ExecuteEligibilityImport:
+        arguments:
+            $mutableFields: '%env(json:IMPORT_MUTABLE_FIELDS_JSON)%'
+
+    App\Presentation\Http\OrganizerImportController:
+        arguments:
+            $maximumBytes: '%env(int:IMPORT_MAXIMUM_BYTES)%'
+            $mutableFields: '%env(json:IMPORT_MUTABLE_FIELDS_JSON)%'
+
+    App\Application\Finance\HostedCheckoutProvider:
+        factory: ['@App\Infrastructure\Finance\HostedCheckoutProviderFactory', 'create']
+        arguments:
+            $apiKey: '%env(STRIPE_SECRET_KEY)%'
+            $providerScope: '%env(STRIPE_PROVIDER_SCOPE)%'
+
+    App\Application\Finance\PaymentSubmissionStore:
+        alias: App\Infrastructure\Finance\DbalPaymentSubmissionStore
+
+    App\Application\Finance\SubmitHostedCheckout: ~
+
+    App\Infrastructure\Finance\DbalCheckoutReconciliationStore:
+        arguments:
+            $providerScope: '%env(STRIPE_PROVIDER_SCOPE)%'
+
+    App\Application\Finance\CheckoutReconciliationStore:
+        alias: App\Infrastructure\Finance\DbalCheckoutReconciliationStore
+
+    App\Application\Finance\ReconcileCheckout: ~
+
+    App\Infrastructure\Finance\StripeProviderEventAuthenticator:
+        arguments:
+            $webhookSecret: '%env(STRIPE_WEBHOOK_SECRET)%'
+            $providerScope: '%env(STRIPE_PROVIDER_SCOPE)%'
+            $liveMode: '%env(bool:STRIPE_LIVE_MODE)%'
+
+    App\Application\Finance\ProviderEventAuthenticator:
+        alias: App\Infrastructure\Finance\StripeProviderEventAuthenticator
+
+    App\Application\Finance\ProviderEventInbox:
+        alias: App\Infrastructure\Finance\DbalProviderEventInbox
+
+    App\Application\Finance\ReceiveProviderEvent: ~
+
+    Symfony\Component\Clock\NativeClock: ~
+
+    Psr\Clock\ClockInterface:
+        alias: Symfony\Component\Clock\NativeClock
+
+    App\Infrastructure\Finance\HostedCheckoutMessageHandler:
+        tags: ['app.outbox_event_handler']
+
+    App\Infrastructure\Finance\CheckoutCancellationMessageHandler:
+        tags: ['app.outbox_event_handler']
+
+    App\Infrastructure\Newsletter\HmacNewsletterTokens:
+        arguments:
+            $secret: '%env(NEWSLETTER_SIGNING_SECRET)%'
+            $previousSecrets: '%env(json:NEWSLETTER_PREVIOUS_SIGNING_SECRETS_JSON)%'
+
+    App\Application\Newsletter\NewsletterStore:
+        alias: App\Infrastructure\Newsletter\DbalNewsletterStore
+
+    App\Application\Newsletter\NewsletterTokens:
+        alias: App\Infrastructure\Newsletter\HmacNewsletterTokens
+
+    App\Application\Newsletter\ManageNewsletter:
+        arguments:
+            $newsletterPolicyVersion: '%env(NEWSLETTER_POLICY_VERSION)%'
+
+    App\Application\Newsletter\NewsletterMailSender:
+        alias: App\Infrastructure\Newsletter\SymfonyNewsletterMailSender
+
+    App\Infrastructure\Newsletter\SymfonyNewsletterMailSender:
+        arguments:
+            $transport: '@mailer.default_transport'
+            $baseUrl: '%env(APP_BASE_URL)%'
+            $sender: '%env(MAILER_FROM)%'
+
+    App\Application\Newsletter\DeliverNewsletterWelcome: ~
+
+    App\Infrastructure\Newsletter\NewsletterMessageHandler:
+        tags: ['app.outbox_event_handler']
+
+    App\Application\Inventory\ReviewOwnershipProof: ~
+
+    App\Infrastructure\Inventory\LocalProofQuarantine:
+        arguments:
+            $directory: '%env(PROOF_STORAGE_DIRECTORY)%'
+            $allowedMimeTypes: '%env(json:PROOF_ALLOWED_MIME_TYPES)%'
+            $maximumBytes: '%env(int:PROOF_MAXIMUM_BYTES)%'
+
+    App\Application\Inventory\PrivateProofStorage:
+        alias: App\Infrastructure\Inventory\LocalProofQuarantine
+
+    App\Application\Inventory\UploadDocumentProof: ~
+
+    App\Application\Inventory\PrivateProofReader:
+        alias: App\Infrastructure\Inventory\LocalProofQuarantine
+
+    App\Application\Inventory\DownloadOwnershipProof: ~
+
+    App\Application\Selling\SellerInventoryStore:
+        alias: App\Infrastructure\Selling\DbalSellerInventoryStore
+
+    App\Application\Selling\SellerInventory: ~
+
+    App\Application\Selling\PublicListingCatalog:
+        alias: App\Infrastructure\Selling\DbalPublicListingCatalog
+
+    App\Application\Selling\DiscoverListingOffers: ~
+
+    App\Infrastructure\Privacy\HmacPrivacyRequestTokens:
+        arguments:
+            $secret: '%env(APP_SECRET)%'
+
+    App\Application\Privacy\PrivacyRequestTokens:
+        alias: App\Infrastructure\Privacy\HmacPrivacyRequestTokens
+
+    App\Application\Finance\CheckoutCancellationRequests:
+        alias: App\Infrastructure\Finance\DbalCheckoutCancellationRequests
+
+    App\Application\Privacy\PrivacyRequestStore:
+        alias: App\Infrastructure\Privacy\DbalPrivacyRequestStore
+
+    App\Application\Privacy\ManagePrivacyRequests:
+        arguments:
+            $progressAuthorityLifetimeSeconds: '%env(int:default::PRIVACY_PROGRESS_LIFETIME_SECONDS)%'
+
+when@test:
+    services:
+        logger:
+            class: Symfony\Component\HttpKernel\Log\Logger
+            arguments:
+                $output: '%kernel.project_dir%/var/test.log'
+        App\Application\Privacy\ManagePrivacyRequests:
+            public: true
+            autowire: true
+            arguments:
+                $progressAuthorityLifetimeSeconds: '%env(int:default::PRIVACY_PROGRESS_LIFETIME_SECONDS)%'
+        App\Application\Inventory\PrivateProofReader:
+            alias: App\Infrastructure\Inventory\LocalProofQuarantine
+            public: true

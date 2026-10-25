@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+{% block title %}Reprenez le départ · RelaisDossard{% endblock %}
+{% block body_class %}landing-page{% endblock %}
+{% block main_class %}landing-main{% endblock %}
+{% block body %}
+<div data-controller="landing" data-action="turbo:before-cache@document->landing#reset">
+    <section class="landing-hero" aria-labelledby="hero-title">
+        <div class="landing-mosaic" aria-label="L’univers de la course à pied">
+            <img class="mosaic-pack" src="{{ asset('images/landing/start.webp') }}" alt="Coureurs sur la ligne de départ, illustration générée par IA" width="1376" height="768" fetchpriority="high">
+            <img class="mosaic-trail" src="{{ asset('images/landing/trail.webp') }}" alt="Course sur un sentier de montagne, illustration générée par IA" width="1200" height="896">
+            <img class="mosaic-bib" src="{{ asset('images/landing/bib.webp') }}" alt="Préparation d’un dossard, illustration générée par IA" width="1200" height="896">
+            <img class="mosaic-finish" src="{{ asset('images/landing/finish.webp') }}" alt="Après la course, illustration générée par IA" width="1200" height="896">
+            <span class="mosaic-word" aria-hidden="true">À VOUS.</span><span class="mosaic-arrow" aria-hidden="true">↗</span>
+        </div>
+        <div class="landing-hero-copy"><div class="landing-standfirst"><p data-landing-target="reveal">Le relais entre coureurs. Trouvez un dossard ou transmettez le vôtre quand vos plans changent.</p><a class="landing-button landing-button-accent" href="#courses" data-landing-target="reveal">Trouver un dossard <span aria-hidden="true">↗</span></a></div><h1 id="hero-title"><span class="landing-mask"><span>Reprenez</span></span><span class="landing-mask"><span>le départ.</span></span></h1></div>
+    </section>
+    <section id="courses" class="landing-discovery" aria-labelledby="discovery-title">
+        <div class="landing-discovery-heading"><h2 id="discovery-title" data-landing-target="reveal">Votre prochain<br>départ est ici.</h2><p data-landing-target="reveal">Un dossard, une course, une nouvelle histoire.<br>Consultez les offres et leurs conditions de transfert.</p></div>
+        <nav class="landing-distances" aria-label="Rechercher par distance">
+            {% for filter in [{label: 'Toutes', params: {}}, {label: '10 km', params: {distance_min: 10000, distance_max: 10000}}, {label: 'Semi', params: {distance_min: 21097, distance_max: 21098}}, {label: 'Marathon', params: {distance_min: 42195, distance_max: 42195}}] %}
+                <a href="{{ path('races', filter.params) }}" data-landing-target="distance" data-action="click->landing#choose"{% if loop.first %} aria-current="true"{% endif %}>{{ filter.label }}</a>
+            {% endfor %}
+        </nav>
+        <a class="landing-button landing-button-ink landing-search-action" href="{{ path('races') }}" data-landing-target="search">Voir les courses <span aria-hidden="true">↗</span></a>
+        <div class="landing-offers" data-landing-target="offers">{% for offer in offers %}{% include 'home/_offer.html.twig' with {offer: offer} only %}{% else %}<div class="landing-empty" role="status"><p>Aucun dossard à afficher pour le moment.</p><p>Explorez les courses et inscrivez-vous aux alertes de celles qui vous intéressent.</p><a href="{{ path('races') }}">Consulter les courses <span aria-hidden="true">↗</span></a></div>{% endfor %}</div>
+        {% if offers %}<p class="landing-note">Les conditions et l’accès sont vérifiés à nouveau sur chaque offre. Consulter ou ajouter au panier ne réserve pas le dossard.</p>{% endif %}
+    </section>
+    <section class="landing-relay" id="relais" aria-labelledby="relay-title">
+        <h2 id="relay-title" data-landing-target="reveal">Un dossard.<br>Deux histoires.</h2>
+        <div class="landing-handoff"><div class="landing-paper-bib" data-landing-target="reveal"><strong>À SUIVRE</strong><span>RelaisDossard · Un nouveau départ.</span></div><p data-landing-target="reveal">Vos plans changent.<br>Son aventure commence.</p></div>
+        <div class="landing-story"><img src="{{ asset('images/landing/bib.webp') }}" alt="Un dossard à transmettre, illustration générée par IA" width="1200" height="896" loading="lazy" data-landing-target="reveal"><div><p class="landing-statement" data-landing-target="reveal">Ce qui s’arrête pour vous peut commencer pour quelqu’un d’autre.</p><p data-landing-target="reveal">Vérifiez votre éligibilité, préparez votre annonce et consultez les conditions de revente de votre course. Le dossard change de coureur. L’envie reste.</p><a href="{{ path('seller_inventory') }}" class="landing-button landing-button-ink" data-landing-target="reveal">Préparer ma revente <span aria-hidden="true">↗</span></a></div></div>
+    </section>
+    <section class="landing-questions" aria-labelledby="questions-title"><h2 id="questions-title" data-landing-target="reveal">Avant<br>le départ.</h2><div class="landing-faq-list">
+        <details data-landing-target="reveal"><summary>Que signifie une annonce vérifiée ?<span aria-hidden="true">+</span></summary><p>La preuve de détention du dossard a été vérifiée avant publication. Cela ne garantit pas que la procédure de transfert de la course a été effectuée.</p></details>
+        <details data-landing-target="reveal"><summary>Comment se passe le transfert ?<span aria-hidden="true">+</span></summary><p>Consultez la procédure indiquée pour la course. Pour une course non participante, vous devez connaître et suivre vous-même les démarches de l’organisateur.</p></details>
+        <details data-landing-target="reveal"><summary>Quand mon achat est-il confirmé ?<span aria-hidden="true">+</span></summary><p>L’achat est confirmé lorsque la plateforme reçoit la confirmation du paiement. Le seul retour de la page de paiement ne constitue pas une confirmation.</p></details>
+    </div></section>
+    <section class="landing-closing" aria-labelledby="closing-title"><p data-landing-target="reveal">La prochaine ligne de départ est peut-être la vôtre.</p><a href="{{ path('races') }}"><h2 id="closing-title" data-landing-target="reveal">À vous<br>de courir.</h2><span aria-hidden="true">↗</span></a><p class="landing-note">Visuels de campagne générés par IA. Ils ne représentent pas les courses proposées.</p></section>
+</div>
+{% endblock %}

@@ -1,0 +1,8 @@
+{% extends 'base.html.twig' %}
+{% block title %}Profil du coureur · RelaisDossard{% endblock %}
+{% block body %}
+<section>
+<h1 class="text-3xl font-bold">{{ profile.displayName ?? 'Profil du coureur' }}</h1>
+<ul class="mt-6 grid gap-3">{% for bib in profile.bibs %}<li>{{ bib.race_name }} · Dossard {{ bib.bib_number }}</li>{% else %}<li>Aucun dossard à afficher.</li>{% endfor %}</ul>
+</section>
+{% endblock %}

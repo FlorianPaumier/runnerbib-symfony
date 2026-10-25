@@ -1,9 +1,7 @@
 .git
 .idea
-.env.local
-.env.*.local
-.env.local.php
-.env.docker
+.env
+.env.*
 vendor/
 var/
 tests/
@@ -14,3 +12,5 @@ tests/
 coverage/
 
 mutation/
+
+node_modules/

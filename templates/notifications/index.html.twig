@@ -1,0 +1,23 @@
+{% extends 'base.html.twig' %}
+{% block title %}Notifications — Relais Dossard{% endblock %}
+{% block body %}
+<h1>Notifications</h1>
+<p>Les informations concernant votre compte, vos achats et vos alertes.</p>
+{% for message in messages %}
+<article>
+<h2>{{ {'account': 'Votre compte', 'payment': 'Votre paiement', 'availability': 'Disponibilité d’un dossard', 'marketing': 'Actualité'}[message.category]|default('Information') }}</h2>
+<time datetime="{{ message.createdAt|date('c') }}">{{ message.createdAt|date('d/m/Y H:i', 'Europe/Paris') }}</time>
+{% set availability = message.availability %}
+{% if availability %}
+<p><a class="underline" href="{{ path('listing_offer', {id: availability.listingId}) }}">Voir l’offre à {{ availability.priceCents|euros }}</a></p>
+<p>Fin de priorité : <time datetime="{{ availability.priorityEndsAt|date('c') }}">{{ availability.priorityEndsAt|date('d/m/Y H:i', 'UTC') }} UTC</time>. Les conditions actuelles sont affichées sur l’offre.</p>
+{% endif %}
+{% if message.readAt %}<p>Lue</p>{% else %}
+<form method="post" action="{{ path('notification_read', {id: message.id}) }}">
+<input type="hidden" name="_token" value="{{ csrf_token('notification_read_' ~ message.id) }}">
+<button type="submit">Marquer comme lue</button>
+</form>
+{% endif %}
+</article>
+{% else %}<p role="status">Vous n’avez aucune notification.</p>{% endfor %}
+{% endblock %}

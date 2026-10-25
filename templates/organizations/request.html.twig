@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+{% block title %}Accès organisateur · RelaisDossard{% endblock %}
+{% block body %}
+<h1 class="text-3xl font-extrabold">Demander un accès organisateur</h1>
+<p class="my-5">Votre demande sera examinée avant de vous permettre de gérer les courses de votre organisation.</p>
+{% if error|default(null) %}<p role="alert">{{ error }}</p>{% endif %}
+<form method="post" class="max-w-xl rounded-xl ui-surface bg-white p-6">
+<input type="hidden" name="_token" value="{{ csrf_token('organization_request') }}">
+<label class="block font-semibold" for="nom">Nom de l’organisation</label>
+<input class="my-3 block w-full rounded-lg border p-3" id="nom" name="nom" required>
+<button class="rounded-lg bg-forest px-5 py-3 font-semibold text-white" type="submit">Demander un accès organisateur</button>
+</form>
+{% endblock %}

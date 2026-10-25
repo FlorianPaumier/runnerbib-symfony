@@ -1,9 +1,13 @@
 # see https://symfony.com/doc/current/reference/configuration/framework.html
 framework:
+    default_locale: fr
     secret: '%env(APP_SECRET)%'
 
     # Note that the session will be started ONLY if you read or write from it.
-    session: true
+    session:
+        handler_id: app.redis_session_handler
+        cookie_httponly: true
+        cookie_samesite: lax
 
     #esi: true
     #fragments: true
@@ -13,3 +17,8 @@ when@test:
         test: true
         session:
             storage_factory_id: session.storage.factory.mock_file
+
+when@prod:
+    framework:
+        session:
+            cookie_secure: true

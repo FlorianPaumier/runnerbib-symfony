@@ -1,0 +1,24 @@
+framework:
+    messenger:
+        failure_transport: failed
+        transports:
+            async:
+                dsn: 'doctrine://default'
+                options:
+                    queue_name: async
+                    auto_setup: false
+                    use_notify: false
+                    redeliver_timeout: 3600
+                retry_strategy:
+                    max_retries: 3
+                    delay: 1000
+                    multiplier: 2
+                    max_delay: 10000
+            failed:
+                dsn: 'doctrine://default'
+                options:
+                    queue_name: failed
+                    auto_setup: false
+                    use_notify: false
+        routing:
+            App\Application\Operations\OutboxMessage: async

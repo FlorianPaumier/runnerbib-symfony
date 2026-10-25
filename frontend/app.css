@@ -1,0 +1,15 @@
+@import "tailwindcss";
+@import "./landing.css";
+@import "./application.css";
+@source "../templates";
+@theme {
+    --color-forest: #111715;
+    --color-paper: #f7f8f3;
+    --color-ink: #111715;
+    --font-sans: "Albert Sans", "Segoe UI", system-ui, sans-serif;
+}
+@layer base {
+    body { @apply bg-paper text-ink antialiased; }
+    :focus-visible { outline: 3px solid #3c5fff; outline-offset: 4px; }
+    button, input, select, textarea { font: inherit; }
+}
